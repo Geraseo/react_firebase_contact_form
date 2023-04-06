@@ -1,6 +1,9 @@
-import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+
+import db from "../firebase";
+
+import { collection, addDoc } from "firebase/firestore";
 
 import { useState } from "react";
 
@@ -10,20 +13,40 @@ const ContactsForm = () => {
   const [message, setMessage] = useState("");
 
   console.log(name, email, message);
-  
-const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    //patikrinti ar laukai uzpildyti
-    //irasyti i db
-    //isvalyti laukus
-    
-    // baigiau ziureti 1:18
 
-  
-  }
-}
-  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    //patikrinti ar laukai uzpildyti
+    if (name.length < 3) {
+      alert("Name must be at least 3 characters long");
+    }
+    if (email.length === "") {
+      alert("Email can't be blank");
+    }
+    if (message.length < 5) {
+      alert("Message must be at least 5 characters long");
+    }
+
+    //irasyti i db
+    try {
+      const docRef = await addDoc(collection(db, "contacts"), {
+        client_name: name,
+        client_email: email,
+        client_message: message,
+        createdAt: new Date(),
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (error) {
+      console.log(error);
+    }
+
+    //isvalyti laukus
+    setName("");
+    setEmail("");
+    setMessage("");
+  };
+
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group
